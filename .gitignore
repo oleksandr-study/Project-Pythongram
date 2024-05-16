@@ -1,0 +1,5 @@
+__pycache__
+**/.env
+postgres-data
+.pytest_cache
+test.db
