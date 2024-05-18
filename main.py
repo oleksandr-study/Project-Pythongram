@@ -3,13 +3,16 @@ from typing import Callable
 from pathlib import Path
 
 import redis.asyncio as redis
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, Request, status, Depends, HTTPException
 from fastapi_limiter import FastAPILimiter
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from sqlalchemy import text
+from sqlalchemy.orm import Session
 
-from src.routes import contacts, auth, users
+# from src.routes import contacts, auth, users
 from src.conf.config import settings
+from src.database.db import get_db
 
 app = FastAPI()
 
@@ -29,41 +32,35 @@ app.add_middleware(
 )
 
 
-# @app.middleware("http")
-# async def ban_ips(request: Request, call_next: Callable):
+# app.include_router(auth.router)
+# app.include_router(users.router)
+# app.include_router(contacts.router)
+
+
+# @app.on_event("startup")
+# async def startup():
 #     """
-#     The ban_ips function is a middleware function that checks if the client's IP address is in the banned_ips list.
-#     If it is, then we return a JSONResponse with status code 403 and an error message. If not, then we call next(request)
-#     and return its response.
+#     The startup function is called when the application starts up.
+#     It's a good place to initialize things that are needed by your app, like database connections or caches.
     
-#     :param request: Request: Get the client's ip address
-#     :param call_next: Callable: Call the next function in the pipeline
-#     :return: A response object
+#     :return: A future object, which is a coroutine
 #     :doc-author: Trelent
 #     """
-#     ip = ip_address(request.client.host)
-#     if ip in banned_ips:
-#         return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"detail": "You are banned"})
-#     response = await call_next(request)
-#     return response
+#     r = await redis.Redis(host=settings.redis_host, port=settings.redis_port, db=0, password=settings.redis_password)
+#     await FastAPILimiter.init(r)
 
 
-app.include_router(auth.router)
-app.include_router(users.router)
-app.include_router(contacts.router)
-
-
-@app.on_event("startup")
-async def startup():
-    """
-    The startup function is called when the application starts up.
-    It's a good place to initialize things that are needed by your app, like database connections or caches.
-    
-    :return: A future object, which is a coroutine
-    :doc-author: Trelent
-    """
-    r = await redis.Redis(host=settings.redis_host, port=settings.redis_port, db=0, password=settings.redis_password)
-    await FastAPILimiter.init(r)
+@app.get("/healthchecker")
+def healthchecker(db: Session = Depends(get_db)):
+    try:
+        # Make request
+        result = db.execute(text("SELECT 1")).fetchone()
+        if result is None:
+            raise HTTPException(status_code=500, detail="Database is not configured correctly")
+        return {"message": "Welcome to FastAPI!"}
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail="Error connecting to the database")
 
 
 @app.get("/")
@@ -77,4 +74,4 @@ def main_root():
     :return: A dictionary
     :doc-author: Trelent
     """
-    return {"message": "Contacts application"}
+    return {"message": "Pythongram started"}
