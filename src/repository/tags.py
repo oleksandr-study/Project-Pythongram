@@ -3,7 +3,7 @@ from typing import List
 from sqlalchemy.orm import Session
 
 from src.models.models import Tag
-from src.schemas import TagModel
+from src.schemas.tags import TagModel
 
 
 async def get_tags(skip: int, limit: int, db: Session) -> List[Tag]:
@@ -71,12 +71,12 @@ async def update_tag(tag_id: int, body: TagModel, db: Session) -> Tag | None:
     """
     tag = db.query(Tag).filter(Tag.id == tag_id).first()
     if tag:
-        tag .name = body.name
+        tag.name = body.name
         db.commit()
     return tag
 
 
-async def remove_tag(tag_id: int, db: Session)  -> Tag | None:
+async def remove_tag(tag_id: int, db: Session) -> Tag | None:
     """
     Deletes a tag with the specified ID for a specific user.
 

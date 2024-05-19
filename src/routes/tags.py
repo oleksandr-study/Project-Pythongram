@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session
 
 from src.database.db import get_db
-from src.schemas import TagModel, TagResponse
+from src.schemas.tags import TagModel, TagResponse
 from src.repository import tags as repository_tags
 
 router = APIRouter(prefix='/tags', tags=["tags"])
@@ -46,7 +46,7 @@ async def read_tag(tag_id: int, db: Session = Depends(get_db)):
     return tag
 
 
-@router.post("/", response_model=TagResponse)
+@router.post("/", response_model=TagResponse, status_code=status.HTTP_201_CREATED)
 async def create_tag(body: TagModel, db: Session = Depends(get_db)):
     """
     Creates a new tag.
