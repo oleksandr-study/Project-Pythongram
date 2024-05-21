@@ -1,36 +1,78 @@
-from pydantic import BaseModel, EmailStr, Field, ConfigDict
+from pydantic import BaseModel, Field
 from datetime import datetime
-import sys
-from pathlib import Path
+from pydantic import EmailStr
 
-# Добавляем корневую папку проекта в sys.path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+class UserModel(BaseModel):
+    """
+    Pydantic model for a User.
 
-from src.models.models import Role
-from typing import Optional
+    This model defines the fields for a user.
 
-class UserSchema(BaseModel):
-    username: str = Field(min_length=3, max_length=50)
-    email: EmailStr
-    password: str = Field(min_length=6, max_length=8)
+    - username: The username of the user.
+    - email: The email of the user.
+    - password: The password of the user.
+    """
+    username: str = Field(min_length=5, max_length=16)
+    email: str
+    password: str = Field(min_length=6, max_length=10)
+
+
+class UserDb(BaseModel):
+    """
+    Pydantic model for a User in the database.
+
+    This model defines the fields for a user in the database.
+
+    - id: The id of the user.
+    - username: The username of the user.
+    - email: The email of the user.
+    - created_at: The date and time the user was created.
+    - avatar: The URL of the user's avatar.
+    """
+    id: int
+    username: str
+    email: str
+    created_at: datetime
+    avatar: str
+
+    class Config:
+        from_attributes = True
 
 
 class UserResponse(BaseModel):
-    id: int = 1
-    username: str
-    email: EmailStr
-    avatar: str | None
-    role: Role
-    created_at: datetime
-    photos_uploaded: int| None
-    model_config = ConfigDict(from_attributes = True)  # noqa
+    """
+    Pydantic model for a User response.
 
-            
-class TokenSchema(BaseModel):
+    This model defines the response schema for a user.
+
+    - user: The user object.
+    - detail: A message indicating that the user was successfully created.
+    """
+    user: UserDb
+    detail: str = "User successfully created"
+
+
+class TokenModel(BaseModel):
+    """
+    Pydantic model for a Token.
+
+    This model defines the fields for a token.
+
+    - access_token: The access token.
+    - refresh_token: The refresh token.
+    - token_type: The type of the token.
+    """
     access_token: str
     refresh_token: str
     token_type: str = "bearer"
-
-
+    
+    
 class RequestEmail(BaseModel):
+    """
+    Pydantic model for an Email request.
+
+    This model defines the fields for an email request.
+
+    - email: The email address.
+    """ 
     email: EmailStr

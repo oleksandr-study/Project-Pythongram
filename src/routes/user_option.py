@@ -12,19 +12,19 @@ from src.database.db import get_db
 from src.repository import users as repository_users
 # from src.repository import photos as repository_photos
 from src.services.auth import auth_service
-from src.models.models import Role
+from src.models.models import User
 from src.schemas.user import UserResponse
 router = APIRouter(prefix='/user_option', tags=['user_option'])
 security = HTTPBearer()
 
 
 @router.get("/username", response_model=UserResponse)
-def get_user_profile(username: str, db: Session = Depends(get_db)):
+async def get_user_profile(username: str, db: Session = Depends(get_db), current_user: User = Depends(auth_service.get_current_user)):
     user = repository_users.get_user_by_username(username, db)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    photos_uploaded = repository_users.count_user_photos(username, db)  # Підрахунок кількості фотографій користувача
+    photos_uploaded = await repository_users.count_user_photos(username, db)  # Підрахунок кількості фотографій користувача
     
     return UserResponse(
         id=user.id,

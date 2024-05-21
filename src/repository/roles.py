@@ -1,18 +1,11 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from typing import List
-
 import sys
 from pathlib import Path
-
+from sqlalchemy.orm import Session
+from src.models.models import Role
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-
-from src.models.models import User, Role
-
-
-def get_role_by_name(name: str, db: AsyncSession) -> Role:
+async def get_role_by_name(name: str, db: Session) -> Role:
     """
     The get_role_by_name function takes a string and an AsyncSession object as arguments.
     It returns a Role object with the name of the string passed in.

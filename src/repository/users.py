@@ -1,122 +1,127 @@
-from libgravatar import Gravatar
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, join
-from typing import List, Union
-from fastapi import HTTPException
 
-import sys
-from pathlib import Path
+"""
+User repository module.
 
-# Добавляем корневую папку проекта в sys.path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+This module contains the functions to interact with the UserDB model in the database.
+It includes functions to get a user by email, create a new user, update a user's token,
+confirm a user's email, and update a user's avatar.
+"""
 
-
-from src.models.models import User, Role, Image
-from src.schemas.schemas_auth import UserModel
-from src.schemas.user import UserResponse
-
-def get_user_by_email(email: str, db: AsyncSession) -> User:
-    stmt = select(User).filter(User.email==email)
-    result = db.execute(stmt)
-    user = result.scalar_one_or_none()
-    return user
+from src.models.models import User
+from sqlalchemy.orm import Session
+from src.schemas.user import UserModel
+from libgravatar import Gravatar 
 
 
-def check_username_unique(username: str, db: AsyncSession) -> bool:
+
+async def get_user_by_email(email: str, db: Session) -> User:
     """
-    Check if the username is unique.
+    Retrieves a user from the database by their email.
 
-    :param username: str: Username to check
-    :param db: AsyncSession: Async database session
-    :return: bool: True if the username is unique, False otherwise
+    :param email: The email of the user to retrieve.
+    :type email: str
+    :param db: The database session.
+    :type db: Session
+    :return: The user with the specified email, or None if the user does not exist.
+    :rtype: UserDB | None
     """
-    user = db.execute(select(User).filter(User.username == username))
-    return user.scalar_one_or_none() is None
+    return db.query(User).filter(User.email == email).first()
 
 
-def create_user(body: UserModel, db: AsyncSession, role: Role) -> User:
+async def create_user(body: UserModel, db: Session) -> User:
     """
-    The create_user function creates a new user in the database.
-    Args:
-        body (UserModel): The UserModel object containing the data to be inserted into the database.
-        db (Session): The SQLAlchemy Session object used to interact with the database.
-    Returns:
-        User: A newly created user from the database.
+    Creates a new user in the database.
 
-    :param body: UserModel: Create a new user
-    :param db: Session: Create a database session
-    :return: A user object
-    :doc-author: Trelent
+    :param body: The data for the new user.
+    :type body: UserModel
+    :param db: The database session.
+    :type db: Session
+    :return: The newly created user.
+    :rtype: UserDB
     """
-    # Перевіряємо унікальність імені користувача
-    if not check_username_unique(body.username, db):
-        raise HTTPException(status_code=400, detail="Username is already taken")
-
     avatar = None
     try:
         g = Gravatar(body.email)
         avatar = g.get_image()
     except Exception as e:
         print(e)
-
-    new_user = User(**body.dict(), avatar=avatar, role=role.value)
+    new_user = User(**body.dict(), avatar=avatar)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
     return new_user
 
 
-
-def update_token(user: User, token: str | None, db: AsyncSession) -> None:
+async def update_token(user: User, token: str | None, db: Session) -> None:
     """
-    The update_token function updates the refresh token for a user.
+    Updates the refresh token for a user.
 
-    :param user: User: Identify the user that will have their token updated
-    :param token: str | None: Update the user's refresh token
-    :param db: Session: Commit the changes to the database
-    :return: None
-    :doc-author: Trelent
+    :param user: The user to update the token for.
+    :type user: UserDB
+    :param token: The new refresh token.
+    :type token: str | None
+    :param db: The database session.
+    :type db: Session
     """
     user.refresh_token = token
     db.commit()
 
-def confirmed_email(email: str, db: AsyncSession) -> None:
-    user = get_user_by_email(email, db)
+async def confirmed_email(email: str, db: Session) -> None:
+    """
+    Marks a user's email as confirmed.
+
+    :param email: The email of the user to confirm.
+    :type email: str
+    :param db: The database session.
+    :type db: Session
+    """
+    user = await get_user_by_email(email, db)
     user.confirmed = True
     db.commit()
 
+# async def update_avatar(email: str, avatar_path: str, db: Session) -> UserDB:
+#     print(email)
+#     user = db.query(UserDB).filter(UserDB.email == email).first()
+#     print(user)
+#     user.avatar = avatar_path
+#     db.commit()
+#     db.refresh(user)
+#     return user
 
-def update_avatar_url(email: str, url: str | None, db: AsyncSession) -> User:
-    user =  get_user_by_email(email, db)
+async def update_avatar(email, url: str, db: Session) -> User:
+    """
+    Updates the avatar for a user with the given email.
+    Using the service Cloudinary
+    This function retrieves the user by their email, updates their avatar URL,
+    commits the changes to the database, and refreshes the user object to include
+    the updated avatar URL.
+
+    :param email: The email of the user whose avatar is to be updated.
+    :type email: str
+    :param url: The new URL of the avatar image.
+    :type url: str
+    :param db: The database session.
+    :type db: Session
+    :return: The updated user object.
+    :rtype: UserDB
+    """
+    user = await get_user_by_email(email, db)
     user.avatar = url
     db.commit()
-    db.refresh(user)
     return user
 
 
-def get_all_users(db: AsyncSession) -> List[User]:
-    stmt = select(User)
-    user = db.execute(stmt)
-    user = user.scalars().all()
-    return user
 
-   
 
-def update_user_role(email: str, new_role: str, db: AsyncSession) -> User:
-    user = get_user_by_email(email, db)
+
+
+
+
+
+async def update_user_role(email: str, new_role: str, db: Session) -> User:
+    user = await get_user_by_email(email, db)
     user.role = new_role
     db.commit()
     db.refresh(user)
     return user
 
-def get_user_by_username(username: str, db: AsyncSession) -> User:
-    stmt = select(User).filter(User.username==username)
-    result = db.execute(stmt)
-    user = result.scalar_one_or_none()
-    return user
-
-def count_user_photos(username: str, db: AsyncSession) -> Union[int, None]:
-    stmt = select(func.count()).select_from(User.__table__.join(Image)).where(User.username == username)
-    result = db.execute(stmt)
-    photo_count = result.scalar_one_or_none()
-    return photo_count
