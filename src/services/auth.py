@@ -1,3 +1,4 @@
+#services.auth.py
 from typing import Optional, List
 
 from jose import JWTError, jwt
@@ -18,13 +19,13 @@ from src.models.models import User, Role
 from src.database.db import get_db
 from src.repository import users as repository_users
 from src.repository import roles as repository_roles
-from src.conf.config import config
+from src.conf.config import settings
 
 
 class Auth:
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    SECRET_KEY = config.SECRET_KEY_JWT
-    ALGORITHM = config.ALGORITHM 
+    SECRET_KEY = settings.secret_key
+    ALGORITHM = settings.algorithm 
 
     oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
@@ -35,7 +36,7 @@ class Auth:
         return self.pwd_context.hash(password)
 
     @staticmethod
-    async def create_access_token(data: dict, expires_delta: Optional[float] = None):
+    def create_access_token(data: dict, expires_delta: Optional[float] = None):
         to_encode = data.copy()
         if expires_delta:
             expire = datetime.utcnow() + timedelta(seconds=expires_delta)
@@ -46,7 +47,7 @@ class Auth:
         return encoded_access_token
 
     @staticmethod
-    async def create_refresh_token(data: dict, expires_delta: Optional[float] = None):
+    def create_refresh_token(data: dict, expires_delta: Optional[float] = None):
         to_encode = data.copy()
         if expires_delta:
             expire = datetime.utcnow() + timedelta(seconds=expires_delta)
@@ -57,7 +58,7 @@ class Auth:
         return encoded_refresh_token
 
     @staticmethod
-    async def decode_refresh_token(refresh_token: str):
+    def decode_refresh_token(refresh_token: str):
         try:
             payload = jwt.decode(refresh_token, Auth.SECRET_KEY, algorithms=[Auth.ALGORITHM])
             if payload['scope'] == 'refresh_token':
@@ -68,7 +69,7 @@ class Auth:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Could not validate credentials')
 
     @staticmethod
-    async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db),
+    def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db),
                                role: Role = None):
         credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -87,7 +88,7 @@ class Auth:
         except JWTError as e:
             raise credentials_exception
 
-        user = await repository_users.get_user_by_email(email, db)
+        user = repository_users.get_user_by_email(email, db)
         if user is None:
             raise credentials_exception
 
@@ -97,17 +98,17 @@ class Auth:
         return user
     
     @staticmethod
-    async def change_user_role(admin_email: str, user_email: str, new_role: str, db: Session = Depends(get_db)):
-        admin = await repository_users.get_user_by_email(admin_email, db)
+    def change_user_role(admin_email: str, user_email: str, new_role: str, db: Session = Depends(get_db)):
+        admin = repository_users.get_user_by_email(admin_email, db)
         if admin is None or admin.role != Role.admin:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admin can change user roles")
 
-        user = await repository_users.get_user_by_email(user_email, db)
+        user = repository_users.get_user_by_email(user_email, db)
         if user is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
         user.role = new_role
-        await repository_users.update_user_role(user.email, user.role, db)
+        repository_users.update_user_role(user.email, user.role, db)
 
         return {"message": "Role updated successfully"}
     
@@ -118,7 +119,7 @@ class Auth:
         token = jwt.encode(to_encode, self.SECRET_KEY, algorithm=self.ALGORITHM)
         return token
 
-    async def get_email_from_token(self, token: str):
+    def get_email_from_token(self, token: str):
         try:
             payload = jwt.decode(token, self.SECRET_KEY, algorithms=[self.ALGORITHM])
             email = payload["sub"]

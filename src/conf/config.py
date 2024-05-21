@@ -1,3 +1,4 @@
+# config.py
 from pydantic import ConfigDict, EmailStr
 from pydantic_settings import BaseSettings
 

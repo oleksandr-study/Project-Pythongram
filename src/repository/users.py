@@ -11,18 +11,18 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 
-from src.models.models import User, Role, Photos
+from src.models.models import User, Role, Image
 from src.schemas.schemas_auth import UserModel
 from src.schemas.user import UserResponse
 
-async def get_user_by_email(email: str, db: AsyncSession) -> User:
+def get_user_by_email(email: str, db: AsyncSession) -> User:
     stmt = select(User).filter(User.email==email)
-    result = await db.execute(stmt)
+    result = db.execute(stmt)
     user = result.scalar_one_or_none()
     return user
 
 
-async def check_username_unique(username: str, db: AsyncSession) -> bool:
+def check_username_unique(username: str, db: AsyncSession) -> bool:
     """
     Check if the username is unique.
 
@@ -30,11 +30,11 @@ async def check_username_unique(username: str, db: AsyncSession) -> bool:
     :param db: AsyncSession: Async database session
     :return: bool: True if the username is unique, False otherwise
     """
-    user = await db.execute(select(User).filter(User.username == username))
+    user = db.execute(select(User).filter(User.username == username))
     return user.scalar_one_or_none() is None
 
 
-async def create_user(body: UserModel, db: AsyncSession, role: Role) -> User:
+def create_user(body: UserModel, db: AsyncSession, role: Role) -> User:
     """
     The create_user function creates a new user in the database.
     Args:
@@ -49,7 +49,7 @@ async def create_user(body: UserModel, db: AsyncSession, role: Role) -> User:
     :doc-author: Trelent
     """
     # Перевіряємо унікальність імені користувача
-    if not await check_username_unique(body.username, db):
+    if not check_username_unique(body.username, db):
         raise HTTPException(status_code=400, detail="Username is already taken")
 
     avatar = None
@@ -61,13 +61,13 @@ async def create_user(body: UserModel, db: AsyncSession, role: Role) -> User:
 
     new_user = User(**body.dict(), avatar=avatar, role=role.value)
     db.add(new_user)
-    await db.commit()
-    await db.refresh(new_user)
+    db.commit()
+    db.refresh(new_user)
     return new_user
 
 
 
-async def update_token(user: User, token: str | None, db: AsyncSession) -> None:
+def update_token(user: User, token: str | None, db: AsyncSession) -> None:
     """
     The update_token function updates the refresh token for a user.
 
@@ -78,45 +78,45 @@ async def update_token(user: User, token: str | None, db: AsyncSession) -> None:
     :doc-author: Trelent
     """
     user.refresh_token = token
-    await db.commit()
+    db.commit()
 
-async def confirmed_email(email: str, db: AsyncSession) -> None:
-    user = await get_user_by_email(email, db)
+def confirmed_email(email: str, db: AsyncSession) -> None:
+    user = get_user_by_email(email, db)
     user.confirmed = True
-    await db.commit()
+    db.commit()
 
 
-async def update_avatar_url(email: str, url: str | None, db: AsyncSession) -> User:
-    user = await get_user_by_email(email, db)
+def update_avatar_url(email: str, url: str | None, db: AsyncSession) -> User:
+    user =  get_user_by_email(email, db)
     user.avatar = url
-    await db.commit()
-    await db.refresh(user)
+    db.commit()
+    db.refresh(user)
     return user
 
 
-async def get_all_users(db: AsyncSession) -> List[User]:
+def get_all_users(db: AsyncSession) -> List[User]:
     stmt = select(User)
-    user = await db.execute(stmt)
+    user = db.execute(stmt)
     user = user.scalars().all()
     return user
 
    
 
-async def update_user_role(email: str, new_role: str, db: AsyncSession) -> User:
-    user = await get_user_by_email(email, db)
+def update_user_role(email: str, new_role: str, db: AsyncSession) -> User:
+    user = get_user_by_email(email, db)
     user.role = new_role
-    await db.commit()
-    await db.refresh(user)
+    db.commit()
+    db.refresh(user)
     return user
 
-async def get_user_by_username(username: str, db: AsyncSession) -> User:
+def get_user_by_username(username: str, db: AsyncSession) -> User:
     stmt = select(User).filter(User.username==username)
-    result = await db.execute(stmt)
+    result = db.execute(stmt)
     user = result.scalar_one_or_none()
     return user
 
-async def count_user_photos(username: str, db: AsyncSession) -> Union[int, None]:
-    stmt = select(func.count()).select_from(User.__table__.join(Photos)).where(User.username == username)
-    result = await db.execute(stmt)
+def count_user_photos(username: str, db: AsyncSession) -> Union[int, None]:
+    stmt = select(func.count()).select_from(User.__table__.join(Image)).where(User.username == username)
+    result = db.execute(stmt)
     photo_count = result.scalar_one_or_none()
     return photo_count

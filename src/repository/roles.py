@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from src.models.models import User, Role
 
 
-async def get_role_by_name(name: str, db: AsyncSession) -> Role:
+def get_role_by_name(name: str, db: AsyncSession) -> Role:
     """
     The get_role_by_name function takes a string and an AsyncSession object as arguments.
     It returns a Role object with the name of the string passed in.

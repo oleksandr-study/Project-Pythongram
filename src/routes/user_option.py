@@ -19,12 +19,12 @@ security = HTTPBearer()
 
 
 @router.get("/username", response_model=UserResponse)
-async def get_user_profile(username: str, db: Session = Depends(get_db)):
-    user = await repository_users.get_user_by_username(username, db)
+def get_user_profile(username: str, db: Session = Depends(get_db)):
+    user = repository_users.get_user_by_username(username, db)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    photos_uploaded = await repository_users.count_user_photos(username, db)  # Підрахунок кількості фотографій користувача
+    photos_uploaded = repository_users.count_user_photos(username, db)  # Підрахунок кількості фотографій користувача
     
     return UserResponse(
         id=user.id,
