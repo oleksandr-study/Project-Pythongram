@@ -26,7 +26,7 @@ from sqlalchemy.orm import Session
 
 from src.database.db import get_db
 from src.schemas.user import UserModel, UserResponse, TokenModel, RequestEmail, UserDb
-from src.repository import user as repository_users
+from src.repository import users as repository_users
 from src.conf.config import settings
 from src.services.auth import auth_service
 from src.services.email import send_email
