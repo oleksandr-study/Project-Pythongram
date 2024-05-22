@@ -1,3 +1,5 @@
+import uvicorn
+
 from ipaddress import ip_address
 from typing import Callable
 from pathlib import Path
@@ -13,8 +15,12 @@ from sqlalchemy.orm import Session
 # from src.routes import contacts, auth, users
 from src.conf.config import settings
 from src.database.db import get_db
+from src.routes import auth, user_option
 
 app = FastAPI()
+
+app.include_router(auth.router, prefix="/api")
+app.include_router(user_option.router, prefix="/api")
 
 banned_ips = [
     # ip_address("192.168.1.1"),
@@ -75,3 +81,8 @@ def main_root():
     :doc-author: Trelent
     """
     return {"message": "Pythongram started"}
+
+
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
