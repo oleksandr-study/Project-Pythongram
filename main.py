@@ -11,7 +11,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 # from src.routes import contacts, auth, users
-from src.routes import tags
+from src.routes import tags,images
 from src.conf.config import settings
 from src.database.db import get_db
 
@@ -37,6 +37,7 @@ app.add_middleware(
 # app.include_router(users.router)
 # app.include_router(contacts.router)
 app.include_router(tags.router)
+app.include_router(images.router)
 
 
 # @app.on_event("startup")
