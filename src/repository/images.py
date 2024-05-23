@@ -23,17 +23,19 @@ async def create_image(body: ImageModel, db: Session,#user: User
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You can add up to 5 tags only.")
     tags = []
     for tag_name in body.tags:
-        tag = db.query(Tag).filter(Tag.name == tag_name).first()
+        print(tag_name.name)
+        tag = db.query(Tag).filter(Tag.name == tag_name.name).first()
         if not tag:
-            tag = Tag(name=tag_name)
+            tag = Tag(name=tag_name.name)
             db.add(tag)
             db.commit()
         tags.append(tag)
-    user = db.query(User).filter(User.id == 1).first()
+    # user = db.query(User).filter(User.id == 1).first()
     image = Image(
             image=body.image,
+            edited_image="image url",
             qr_code=body.qr_code,
-            user_id=user.id,
+            user_id=11,
             description=body.description,
             tags=tags
         )
