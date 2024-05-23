@@ -27,8 +27,8 @@ async def update_comment(db: Session, body: CommentBase,user_id:int ,comment_id:
 
     return comment
 
-async def delete_comment(db: Session, comment_id: int,user_id:int) -> Comment | None:
-    comment = db.query(Comment).filter(and_(Comment.id == comment_id, Comment.user_id == user_id)).first()
+async def delete_comment(db: Session, comment_id: int) -> Comment | None:
+    comment = db.query(Comment).filter(and_(Comment.id == comment_id)).first()
     if comment:
         db.delete(comment)
         db.commit()
