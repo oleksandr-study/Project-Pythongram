@@ -16,9 +16,31 @@ async def get_images_by_user(user_id: int, db: Session) -> List[Image]:
 async def get_images_by_id(image_id: int, db: Session) -> Image:
     return db.query(Image).filter(Image.id == image_id).all()
 
+
 async def create_image(body: ImageModel, db: Session,#user: User
                        ) -> Image:
     if len(body.tags) > 5:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You can add up to 5 tags only.")
+    tags = []
+    for tag_name in body.tags:
+        tag = db.query(Tag).filter(Tag.name == tag_name).first()
+        if not tag:
+            tag = Tag(name=tag_name)
+            db.add(tag)
+            db.commit()
+        tags.append(tag)
+    user = db.query(User).filter(User.id == 1).first()
+    image = Image(
+            image=body.image,
+            qr_code=body.qr_code,
+            user_id=user.id,
+            description=body.description,
+            tags=tags
+        )
+
+async def create_image(body: ImageModel, db: Session,#user: User
+                       ) -> Image:
+if len(body.tags) > 5:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You can add up to 5 tags only.")
     tags = []
     for tag_name in body.tags:
@@ -63,7 +85,6 @@ async def update_image(image_id: int, body: ImageUpdate, db: Session, user: int)
                 db.add(tag)
                 db.commit()
             tags.append(tag)
-
         exist_image.qr_code = body.qr_code
         exist_image.description = body.description
         exist_image.edited_image = body.edited_image
