@@ -15,12 +15,14 @@ from sqlalchemy.orm import Session
 # from src.routes import contacts, auth, users
 from src.conf.config import settings
 from src.database.db import get_db
-from src.routes import auth, user_option
+from src.routes import auth, user_option, images
+
 
 app = FastAPI()
 
 app.include_router(auth.router, prefix="/api")
 app.include_router(user_option.router, prefix="/api")
+
 
 banned_ips = [
     # ip_address("192.168.1.1"),

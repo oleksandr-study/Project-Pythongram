@@ -14,6 +14,7 @@ from src.repository import users as repository_users
 from src.services.auth import auth_service
 from src.models.models import User
 from src.schemas.user import UserResponse
+
 router = APIRouter(prefix='/user_option', tags=['user_option'])
 security = HTTPBearer()
 
