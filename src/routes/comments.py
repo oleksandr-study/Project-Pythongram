@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from src.schemas.schemas import CommentBase,CommentResponse
+from src.schemas.comments import CommentBase,CommentResponse
 from src.repository import comments
 from src.services.auth import auth_service
 from src.models.models import User,Role
