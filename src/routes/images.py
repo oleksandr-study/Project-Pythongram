@@ -10,6 +10,8 @@ from src.models.models import User
 from src.repository import images as repository_images
 from src.schemas.images import ImageResponse, ImageUpdateSchema
 from src.services.auth import auth_service
+from src.repository import comments as repository_comments
+
 
 router = APIRouter(tags=["images"])
 

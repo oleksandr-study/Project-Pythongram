@@ -61,4 +61,6 @@ async def remove_tag(tag_id: int, db: Session = Depends(get_db)):
     tag = await repository_tags.remove_tag(tag_id, db)
     if tag is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tag not found")
+
     return tag
+

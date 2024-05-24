@@ -18,7 +18,7 @@ from src.conf.config import settings
 conf = ConnectionConfig(
     MAIL_USERNAME=settings.mail_username,
     MAIL_PASSWORD=settings.mail_password,
-    MAIL_FROM="Project_FastAPI@meta.ua", #EmailStr(settings.mail_from),
+    MAIL_FROM=settings.mail_from,
     MAIL_PORT=settings.mail_port,
     MAIL_SERVER=settings.mail_server,
     MAIL_FROM_NAME="Desired Name",
@@ -58,4 +58,3 @@ async def send_email(email: EmailStr, username: str, host: str):
         await fm.send_message(message, template_name="email_template.html")
     except ConnectionErrors as err:
         print(err)
-

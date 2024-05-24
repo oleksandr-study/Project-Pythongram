@@ -54,4 +54,5 @@ async def remove_tag(tag_id: int, db: Session,#user: User
     if tag:
         db.delete(tag)
         db.commit()
+
     return tag

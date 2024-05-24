@@ -222,6 +222,7 @@ async def update_avatar_user(file: UploadFile = File(), current_user: User = Dep
     user = await repository_users.update_avatar(current_user.email, src_url, db)
     return user
 
+
 @router.post("/change_role", response_model=dict)
 async def change_user_role(admin_email: str, user_email: str, new_role: Role, db: Session = Depends(get_db)):
     try:
