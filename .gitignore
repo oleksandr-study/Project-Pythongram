@@ -3,3 +3,4 @@ __pycache__
 postgres-data
 .pytest_cache
 test.db
+.idea

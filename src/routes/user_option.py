@@ -13,7 +13,8 @@ from src.repository import users as repository_users
 # from src.repository import photos as repository_photos
 from src.services.auth import auth_service
 from src.models.models import User
-from schemas.user import UserResponse
+from src.schemas.user import UserResponse
+
 router = APIRouter(prefix='/user_option', tags=['user_option'])
 security = HTTPBearer()
 
