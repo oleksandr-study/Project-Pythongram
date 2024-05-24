@@ -40,6 +40,7 @@ async def create_image(body: ImageModel, db: Session,#user: User
             db.commit()
         tags.append(tag)
     # user = db.query(User).filter(User.id == 1).first()
+    user_id = 3
     image = Image(
             image=body.image,
             edited_image="image url",
