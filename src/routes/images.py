@@ -8,8 +8,8 @@ from src.database.db import get_db
 #from src.schemas import ContactModel, ContactResponse
 from src.repository import images as repository_images
 #from src.services.auth import auth_service
-from schemas.schemas import ImageResponse, ImageModel, ImageUpdate,CommentBase,CommentResponse
-from repository import comments as repository_comments
+from src.schemas.schemas import ImageResponse, ImageModel, ImageUpdate,CommentBase,CommentResponse
+from src.repository import comments as repository_comments
 
 router = APIRouter(tags=["images"])
 
