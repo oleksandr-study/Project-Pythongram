@@ -17,8 +17,8 @@ from src.routes import tags,images
 from src.conf.config import settings
 from src.database.db import get_db
 
-from src.routes import auth, user_option, images
-from routes.transform_image_routes import router as cl_image_router
+from src.routes import auth, user_option, images, comments
+from src.routes.transform_image_routes import router as cl_image_router
 import src.conf.cloudinary_config
 
 
@@ -27,6 +27,7 @@ app = FastAPI()
 app.include_router(auth.router, prefix="/api")
 app.include_router(user_option.router, prefix="/api")
 app.include_router(cl_image_router, prefix="/images", tags=["images"])
+app.include_router(comments.router, prefix="/api")
 
 
 banned_ips = [
