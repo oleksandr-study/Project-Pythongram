@@ -50,8 +50,8 @@ app.add_middleware(
 # app.include_router(auth.router)
 # app.include_router(users.router)
 # app.include_router(contacts.router)
-app.include_router(tags.router)
-app.include_router(images.router)
+# app.include_router(tags.router)
+# app.include_router(images.router)
 
 
 # @app.on_event("startup")
