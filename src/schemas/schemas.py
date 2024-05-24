@@ -59,4 +59,3 @@ class ImageResponse(ImageBase):
 
     class Config:
         from_attributes = True
-
