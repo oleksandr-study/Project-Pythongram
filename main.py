@@ -27,7 +27,7 @@ app = FastAPI()
 app.include_router(auth.router, prefix="/api")
 app.include_router(user_option.router, prefix="/api")
 app.include_router(cl_image_router, prefix="/images", tags=["images"])
-app.include_router(comm)
+app.include_router(comments.router)
 
 
 banned_ips = [
