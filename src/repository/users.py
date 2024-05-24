@@ -9,7 +9,7 @@ confirm a user's email, and update a user's avatar.
 
 from src.models.models import User
 from sqlalchemy.orm import Session
-from schemas.user import UserModel
+from src.schemas.user import UserModel
 from libgravatar import Gravatar 
 
 

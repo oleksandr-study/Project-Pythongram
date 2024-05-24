@@ -15,7 +15,8 @@ from sqlalchemy.orm import Session
 # from src.routes import contacts, auth, users
 from src.conf.config import settings
 from src.database.db import get_db
-from src.routes import auth, user_option,images
+from src.routes import auth, user_option, images
+
 
 app = FastAPI()
 
