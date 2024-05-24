@@ -63,3 +63,4 @@ async def create_comment(image_id: int,body: CommentBase ,db: Session = Depends(
     if image:
         comment = repository_comments.create_comment(image_id,db,comment=body,user_id=1)
     return await comment
+
