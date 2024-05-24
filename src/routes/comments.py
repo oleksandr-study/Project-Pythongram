@@ -16,11 +16,11 @@ async def get_comments(image_id: int,db: Session = Depends(get_db)): #,current_u
 
 @router.post('/{image_id}/comments/', response_model=CommentResponse)
 async def create_comment(image_id: int, body: CommentBase, db: Session = Depends(get_db),current_user: User = Depends(auth_service.get_current_user)):
-    return await comments.create_comment(image_id,body,db,user_id=current_user)
+    return await comments.create_comment(db,body,user_id=current_user, image_id=image_id)
 
 @router.patch('/{image_id}/comments/{comment_id}/', response_model=CommentResponse)
 async def update_comm(comment_id: int, body: CommentBase, db: Session = Depends(get_db), current_user: User = Depends(auth_service.get_current_user)):
-    comment = await comments.update_comment(comment_id,body,db,current_user.id)
+    comment = await comments.update_comment(db,body,user_id=current_user,comment_id=comment_id)
     if comment is None:
          raise HTTPException(status_code=404, detail="Comment not found")
     return comment

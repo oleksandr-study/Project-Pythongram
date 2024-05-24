@@ -124,4 +124,3 @@ async def update_user_role(email: str, new_role: str, db: Session) -> User:
     db.commit()
     db.refresh(user)
     return user
-
