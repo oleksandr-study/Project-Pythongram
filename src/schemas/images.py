@@ -35,13 +35,14 @@ class ImageBase(BaseModel):
     image: str = Field(max_length=255)
     description: str = Field(max_length=100)
     qr_code: str = Field(max_length=255)
+    tags: List[str]
     user_id: int
+    #user: UserForImage | None
 
 class ImageModel(ImageBase):
-    tags: List[TagResponse]
     comments: Optional[List[CommentResponse]]
 
-class ImageUpdate(BaseModel):
+class ImageUpdateSchema(BaseModel):
     description: str = Field(max_length=100)
     qr_code: str = Field(max_length=255)
     edited_image: str = Field(max_length=255)
@@ -53,7 +54,8 @@ class ImageUpdate(BaseModel):
 
 class ImageResponse(ImageBase):
     id: int
-    user: UserForImage
+    #user: UserForImage
+    user_id: int
     tags: List[TagResponse]
     comments: Optional[List[CommentResponse]]
 
