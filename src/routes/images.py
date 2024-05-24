@@ -8,7 +8,8 @@ from src.database.db import get_db
 #from src.schemas import ContactModel, ContactResponse
 from src.repository import images as repository_images
 #from src.services.auth import auth_service
-from src.schemas.schemas import ImageResponse, ImageModel, ImageUpdate
+from schemas.schemas import ImageResponse, ImageModel, ImageUpdate,CommentBase,CommentResponse
+from repository import comments as repository_comments
 
 router = APIRouter(tags=["images"])
 
@@ -17,17 +18,22 @@ async def get_all_images(skip: int = 0, limit: int = 100, db: Session = Depends(
     images = repository_images.get_all_images(skip, limit, db)
     return await images
 
+  
 @router.get("/users/{user_id}", response_model=List[ImageResponse])
 async def get_images_by_user(user_id: int, db: Session = Depends(get_db)):
     images = repository_images.get_images_by_user(user_id, db)
     return await images
 
+  
 @router.get("/images/{image_id}", response_model=List[ImageResponse])
 async def get_images_by_id(image_id: int, db: Session = Depends(get_db)):
     image = repository_images.get_images_by_id(image_id, db)
-    return await image
+    if image:
+        comments = repository_comments.get_comments(db,image_id)
+    return await image,comments
 
-@router.post("/images", response_model=ImageResponse)
+  
+@router.post("/", response_model=ImageResponse)
 async def create_image(body: ImageModel, db: Session = Depends(get_db),
                       #current_user: User = Depends(auth_service.get_current_user)
                        ):
@@ -49,3 +55,12 @@ async def remove_image(image_id: int, db: Session = Depends(get_db), current_use
     if image is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Image not found")
     return image
+
+
+@router.post("/images/{image_id}/comments", response_model=List[CommentResponse])
+async def create_comment(image_id: int,body: CommentBase ,db: Session = Depends(get_db)):
+    image = repository_images.get_images_by_id(image_id, db)
+    if image:
+        comment = repository_comments.create_comment(image_id,db,comment=body,user_id=1)
+    return await comment
+
