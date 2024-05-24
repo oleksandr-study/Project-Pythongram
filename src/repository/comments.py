@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from src.models.models import User,Comment
-from schemas.schemas import CommentBase
+from src.schemas.schemas import CommentBase
 from typing import List
 from sqlalchemy import and_
 
