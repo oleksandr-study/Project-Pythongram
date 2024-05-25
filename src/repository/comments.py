@@ -10,7 +10,7 @@ async def get_comments(db: Session, image_id: int) -> List[Comment]:
 async def get_comment(db: Session, image_id: int ) -> Comment:
     return db.query(Comment).filter(Comment.image_id == image_id).first()
 
-async def create_comment(db: Session, comment:CommentBase, user_id: int, image_id: int) -> Comment:
+async def create_comment(image_id: int, comment:CommentBase, db: Session, user_id: int) -> Comment:
     db_comment = Comment(comment=comment.comment, 
                          user_id=user_id, 
                          image_id=image_id)
