@@ -29,6 +29,7 @@ app.include_router(user_option.router, prefix="/api")
 app.include_router(images.router, prefix="/api")
 app.include_router(cl_image_router, prefix="/images", tags=["images"])
 app.include_router(comments.router, prefix="/api")
+app.include_router(tags.router, prefix="/api")
 
 
 banned_ips = [
