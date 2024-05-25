@@ -198,8 +198,8 @@ class Auth:
 
 
 
-    async def change_user_role(admin_email: str, user_email: str, new_role: str, db: Session = Depends(get_db)):
-        admin = repository_users.get_user_by_email(admin_email, db)
+    async def change_user_role(self, admin_email: str, user_email: str, new_role: str, db: Session = Depends(get_db)):
+        admin = await repository_users.get_user_by_email(admin_email, db)
         if admin is None or admin.role != Role.admin:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admin can change user roles")
 
@@ -208,7 +208,7 @@ class Auth:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
         user.role = new_role
-        repository_users.update_user_role(user.email, user.role, db)
+        await repository_users.update_user_role(user.email, user.role, db)
 
         return {"message": "Role updated successfully"}
     

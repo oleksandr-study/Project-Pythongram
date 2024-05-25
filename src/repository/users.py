@@ -111,13 +111,6 @@ async def update_avatar(email, url: str, db: Session) -> User:
     return user
 
 
-
-
-
-
-
-
-
 async def update_user_role(email: str, new_role: str, db: Session) -> User:
     user = await get_user_by_email(email, db)
     user.role = new_role

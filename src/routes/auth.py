@@ -226,7 +226,7 @@ async def update_avatar_user(file: UploadFile = File(), current_user: User = Dep
 @router.post("/change_role", response_model=dict)
 async def change_user_role(admin_email: str, user_email: str, new_role: Role, db: Session = Depends(get_db)):
     try:
-        result = auth_service.change_user_role(admin_email, user_email, new_role, db)
+        result = await auth_service.change_user_role(admin_email, user_email, new_role, db)
         return {"message": result}
     except HTTPException as e:
         return {"detail": e.detail}
