@@ -1,15 +1,6 @@
 from pydantic import BaseModel, Field
-from src.schemas.images import UserForImage
+from src.schemas.user import UserForImage
 
-
-class UserForImage(BaseModel):
-    id: int
-    username: str
-    email: str
-
-    class Config:
-        from_attributes = True
-        
 
 class CommentBase(BaseModel):
     comment: str

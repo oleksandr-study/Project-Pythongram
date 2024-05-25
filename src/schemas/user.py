@@ -39,6 +39,15 @@ class UserDb(BaseModel):
         from_attributes = True
 
 
+class UserForImage(BaseModel):
+    id: int
+    username: str
+    email: str
+
+    class Config:
+        from_attributes = True
+
+
 class UserResponse(BaseModel):
     """
     Pydantic model for a User response.
