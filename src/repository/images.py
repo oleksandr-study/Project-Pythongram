@@ -24,11 +24,11 @@ async def get_images_by_id(image_id: int, user: User, db: Session) -> Image:
 async def create_image(image_url, description, user: User, all_tags, db: Session) -> Image:
     tags = []
     list_tags = all_tags.split(", ")
+    print(all_tags)
     if len(list_tags) > 5:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You can add up to 5 tags only.")
 
     for tag_name in list_tags:
-        print(tag_name)
         tag = db.query(Tag).filter(Tag.name == tag_name).first()
         if not tag:
             tag = Tag(name=tag_name)

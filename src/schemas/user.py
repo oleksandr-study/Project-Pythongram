@@ -76,3 +76,11 @@ class RequestEmail(BaseModel):
     - email: The email address.
     """ 
     email: EmailStr
+
+class UserForImage(BaseModel):
+    id: int
+    username: str
+    email: str
+
+    class Config:
+        from_attributes = True

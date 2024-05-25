@@ -5,15 +5,6 @@ from src.schemas.comments import CommentResponse
 from src.schemas.tags import TagResponse
 
 
-class UserForImage(BaseModel):
-    id: int
-    username: str
-    email: str
-
-    class Config:
-        from_attributes = True
-
-
 class ImageBase(BaseModel):
     image: str = Field(max_length=255)
     description: str = Field(max_length=100)
