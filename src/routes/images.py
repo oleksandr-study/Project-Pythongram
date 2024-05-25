@@ -77,12 +77,3 @@ async def remove_image(image_id: int, db: Session = Depends(get_db),
     if image is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Image not found")
     return image
-
-
-@router.post("/images/{image_id}/comments", response_model=List[CommentResponse])
-async def create_comment(image_id: int,body: CommentBase ,db: Session = Depends(get_db)):
-    image = repository_images.get_images_by_id(image_id, db)
-    if image:
-        comment = repository_comments.create_comment(image_id,db,comment=body,user_id=1)
-    return await comment
-

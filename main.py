@@ -13,7 +13,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 # from src.routes import contacts, auth, users
-from src.routes import tags,images
+from src.routes import tags, images
 from src.conf.config import settings
 from src.database.db import get_db
 
