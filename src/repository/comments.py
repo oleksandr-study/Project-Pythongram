@@ -4,10 +4,10 @@ from src.schemas.comments import CommentBase
 from typing import List
 from sqlalchemy import and_
 
-async def get_comments(db: Session, image_id: int) -> List[Comment]:
+async def get_comments(image_id: int,db: Session) -> List[Comment]:
     return db.query(Comment).filter(Comment.image_id == image_id).all()
 
-async def get_comment(db: Session, image_id: int ) -> Comment:
+async def get_comment(image_id: int, db: Session) -> Comment:
     return db.query(Comment).filter(Comment.image_id == image_id).first()
 
 async def create_comment(image_id: int, comment:CommentBase, db: Session, user_id: int) -> Comment:
@@ -19,7 +19,7 @@ async def create_comment(image_id: int, comment:CommentBase, db: Session, user_i
     db.refresh(db_comment)
     return db_comment
 
-async def update_comment(db: Session, body: CommentBase,user_id:int ,comment_id: int) -> Comment | None:
+async def update_comment(comment_id: int, body: CommentBase, db: Session, user_id:int) -> Comment | None:
     comment = db.query(Comment).filter(and_(Comment.id == comment_id, Comment.user_id == user_id)).first()
     if comment: 
         comment.comment = body.comment
@@ -27,7 +27,7 @@ async def update_comment(db: Session, body: CommentBase,user_id:int ,comment_id:
 
     return comment
 
-async def delete_comment(db: Session, comment_id: int) -> Comment | None:
+async def delete_comment(comment_id: int, db: Session) -> Comment | None:
     comment = db.query(Comment).filter(and_(Comment.id == comment_id)).first()
     if comment:
         db.delete(comment)
