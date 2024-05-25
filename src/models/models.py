@@ -24,13 +24,13 @@ class Image(Base):
     __tablename__ = "images"
     id = Column(Integer, primary_key=True)
     image = Column(String(255), nullable=False)
-    edited_image = Column(String(255), nullable=False)
-    description = Column(String(100), nullable=False)
+    edited_image = Column(String(255), nullable=True)
+    description = Column(String(100), nullable=True)
     user_id = Column('user_id', ForeignKey('users.id', ondelete='CASCADE'), nullable=True)
     user = relationship('User', backref="images", lazy="joined")
     comments = relationship('Comment', backref="images")
     tags = relationship("Tag", secondary=image_m2m_tag, backref="images", passive_deletes=True)
-    qr_code = Column(String(255), nullable=False)
+    qr_code = Column(String(255), nullable=True)
 
 
 class Role(enum.Enum):

@@ -1,4 +1,4 @@
-# config.py
+from pydantic import ConfigDict, EmailStr
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
@@ -44,17 +44,10 @@ class Settings(BaseSettings):
     postgres_port: int = 5432 
     cloudinary_name: str="test"
     cloudinary_api_key: str="test"
-    cloudinary_api_secret: str="test"
-
-    class Config:
-        """
-        Configuration class for pydantic_settings.
-
-        This class specifies the .env file to load settings from and the encoding
-        of the .env file.
-        """
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    cloudinary_name: str = 'name'
+    cloudinary_api_key: str = 1234567894
+    cloudinary_api_secret:str = 'secret'
+    model_config = ConfigDict(extra='ignore', env_file=".env", env_file_encoding="utf-8")
 
 
 settings = Settings()
