@@ -210,6 +210,9 @@ class Auth:
         user.role = new_role
         await repository_users.update_user_role(user.email, user.role, db)
 
+        self.r.set(f"user:{user.email}", pickle.dumps(user))
+        self.r.expire(f"user:{user.email}", 900)
+
         return {"message": "Role updated successfully"}
     
 auth_service = Auth()
