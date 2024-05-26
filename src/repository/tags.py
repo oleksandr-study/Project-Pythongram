@@ -1,13 +1,11 @@
 from typing import List
 
 from sqlalchemy.orm import Session
-
-from src.models.models import Tag
-from src.schemas.tags import TagModel
+from src.models.models import Tag, User, Role
 
 
-async def get_tags(skip: int, limit: int, db: Session,#user: User
-                   ) -> List[Tag]:
+async def get_tags(skip: int, limit: int, db: Session, user: User
+                   ) -> List[Tag] | None:
     """
     Retrieves a list of tags for a specific user.
 
@@ -16,13 +14,15 @@ async def get_tags(skip: int, limit: int, db: Session,#user: User
     :param db: The database session.
     :type db: Session
     :return: A list of tags.
-    :rtype: List[Tag]
+    :rtype: List[Tag]| None
     """
-    return db.query(Tag).offset(skip).limit(limit).all()
+    if user.role ==Role.admin or user.role ==Role.moderator:
+       tags =db.query(Tag).offset(skip).limit(limit).all()
+    return tags
 
 
-async def get_tag(tag_id: int, db: Session#user: User
-                  ) -> Tag:
+async def get_tag(tag_id: int, db: Session,user: User
+                  ) -> Tag| None:
     """
     Retrieves a single tag by its ID.
 
@@ -33,10 +33,12 @@ async def get_tag(tag_id: int, db: Session#user: User
     :return: The tag with the specified ID, or None if it does not exist.
     :rtype: Tag | None
     """
-    return db.query(Tag).filter(Tag.id == tag_id).first()
+    if user.role ==Role.admin or user.role ==Role.moderator:
+       tag = db.query(Tag).filter(Tag.id == tag_id).first()
+    return tag
 
 
-async def remove_tag(tag_id: int, db: Session,#user: User
+async def remove_tag(tag_id: int, db: Session,user: User
                      ) -> Tag | None:
     """
     Deletes a tag with the specified ID for a specific user.
@@ -50,7 +52,9 @@ async def remove_tag(tag_id: int, db: Session,#user: User
     :return: The deleted tag, or None if it does not exist.
     :rtype: Tag | None
     """
-    tag = db.query(Tag).filter(Tag.id == tag_id).first()
+    if user.role ==Role.admin or user.role ==Role.moderator:
+        tag = db.query(Tag).filter(Tag.id == tag_id).first()
+
     if tag:
         db.delete(tag)
         db.commit()

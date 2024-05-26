@@ -1,5 +1,6 @@
 from typing import List
-
+from src.models.models import User
+from src.services.auth import auth_service
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session
 
@@ -11,7 +12,7 @@ router = APIRouter(prefix='/tags', tags=["tags"])
 
 
 @router.get("/", response_model=List[TagResponse])
-async def read_tags(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+async def read_tags(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(auth_service.get_current_user)):
     """
     Retrieves a list of tags with pagination.
 
@@ -24,12 +25,12 @@ async def read_tags(skip: int = 0, limit: int = 100, db: Session = Depends(get_d
     :return: A list of tags.
     :rtype: List[TagResponse]
     """
-    tags = await repository_tags.get_tags(skip, limit, db)
+    tags = await repository_tags.get_tags(skip, limit, db, current_user)
     return tags
 
 
 @router.get("/{tag_id}", response_model=TagResponse)
-async def read_tag(tag_id: int, db: Session = Depends(get_db)):
+async def read_tag(tag_id: int, db: Session = Depends(get_db), current_user: User = Depends(auth_service.get_current_user)):
     """
     Retrieves a tag by its ID.
 
@@ -40,14 +41,14 @@ async def read_tag(tag_id: int, db: Session = Depends(get_db)):
     :return: The tag with the specified ID, or raises a 404 error if not found.
     :rtype: TagResponse
     """
-    tag = await repository_tags.get_tag(tag_id, db)
+    tag = await repository_tags.get_tag(tag_id, current_user, db)
     if tag is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tag not found")
     return tag
 
 
 @router.delete("/{tag_id}", response_model=TagResponse)
-async def remove_tag(tag_id: int, db: Session = Depends(get_db)):
+async def remove_tag(tag_id: int, db: Session = Depends(get_db), current_user: User = Depends(auth_service.get_current_user)):
     """
     Deletes a tag by its ID.
 
@@ -58,7 +59,7 @@ async def remove_tag(tag_id: int, db: Session = Depends(get_db)):
     :return: The deleted tag, or raises a 404 error if not found.
     :rtype: TagResponse
     """
-    tag = await repository_tags.remove_tag(tag_id, db)
+    tag = await repository_tags.remove_tag(tag_id, current_user, db)
     if tag is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tag not found")
 
