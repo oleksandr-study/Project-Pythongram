@@ -1,3 +1,5 @@
+import cloudinary
+
 from pydantic import ConfigDict, EmailStr
 from pydantic_settings import BaseSettings
 
@@ -44,10 +46,16 @@ class Settings(BaseSettings):
     postgres_port: int = 5432 
     cloudinary_name: str="test"
     cloudinary_api_key: str="test"
-    cloudinary_name: str = 'name'
-    cloudinary_api_key: str = 1234567894
     cloudinary_api_secret:str = 'secret'
     model_config = ConfigDict(extra='ignore', env_file=".env", env_file_encoding="utf-8")
 
 
 settings = Settings()
+
+def cloudinary_start():
+    cloudinary.config(
+        cloud_name=settings.cloudinary_name,
+        api_key=settings.cloudinary_api_key,
+        api_secret=settings.cloudinary_api_secret,
+        secure=True,
+    )
