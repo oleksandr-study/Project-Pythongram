@@ -4,8 +4,8 @@ sys.path.insert(0, '../src')
 from unittest.mock import MagicMock
 from sqlalchemy.orm import Session
 from src.models.models import Comment
-from src.schemass.comments import CommentBase
-from src.repositoryy.comments import (get_comments, 
+from src.schemas.comments import CommentBase
+from src.repository.comments import (get_comments, 
                                       get_comment, 
                                       create_comment, 
                                       update_comment, 
