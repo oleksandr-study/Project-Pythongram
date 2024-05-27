@@ -31,6 +31,10 @@ qrcode = "^7.4.2"
 sphinx = "^7.3.7"
 
 
+
+[tool.poetry.group.tests.dependencies]
+pytest-cov = "^5.0.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
