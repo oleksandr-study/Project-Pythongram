@@ -1,15 +1,16 @@
 from typing import List
-from src.models.models import User
+from src.models.models import User,Role
 from src.services.auth import auth_service
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session
-
+from src.services.roles import RoleAccess
 from src.database.db import get_db
 from src.schemas.tags import TagModel, TagResponse
 from src.repository import tags as repository_tags
 
 router = APIRouter(prefix='/tags', tags=["tags"])
 
+access_to_route_all = RoleAccess([Role.admin, Role.moderator])
 
 @router.get("/", response_model=List[TagResponse])
 async def read_tags(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(auth_service.get_current_user)):
