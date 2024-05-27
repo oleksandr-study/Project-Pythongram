@@ -1,12 +1,13 @@
 from typing import List
 
-from fastapi import UploadFile, File, HTTPException
+from fastapi import HTTPException
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from starlette import status
 
 from src.models.models import Image, User, Tag, Role
 from src.schemas.images import ImageUpdateSchema
+
 
 async def get_all_images(skip: int, limit: int, db: Session) -> List[Image]:
     """
@@ -116,7 +117,7 @@ async def remove_image(image_id: int, user: User, db: Session) -> Image | None:
     :return: The removed image, or None if it does not exist.
     :rtype: Image | None
     """
-    if user.role ==Role.admin:
+    if user.role == Role.admin:
         image = db.query(Image).filter(Image.id == image_id).first()
     else:
         image = db.query(Image).filter(and_(Image.id == image_id, Image.user_id == user.id)).first()
