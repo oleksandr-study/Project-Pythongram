@@ -109,7 +109,7 @@ async def create_image(
 
 @router.put("/images/{image_id}", response_model=ImageResponse)
 async def update_image(body: ImageUpdateSchema, image_id: int, db: Session = Depends(get_db),
-                       # current_user: User = Depends(auth_service.get_current_user)
+                       current_user: User = Depends(auth_service.get_current_user)
                        ):
     """
     Updates an existing image by ID.
@@ -125,7 +125,6 @@ async def update_image(body: ImageUpdateSchema, image_id: int, db: Session = Dep
     :return: The updated image.
     :rtype: ImageResponse
     """
-    current_user = db.query(User).filter(User.id == 3).first()
     image = await repository_images.update_image(image_id, body, current_user, db)
     if image is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Image not found")
@@ -134,7 +133,7 @@ async def update_image(body: ImageUpdateSchema, image_id: int, db: Session = Dep
 
 @router.delete("/images/{image_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_image(image_id: int, db: Session = Depends(get_db),
-                       #current_user: User = Depends(auth_service.get_current_user)
+                       current_user: User = Depends(auth_service.get_current_user)
                        ):
     """
     Removes an image by ID.
@@ -148,8 +147,7 @@ async def remove_image(image_id: int, db: Session = Depends(get_db),
     :return: The removed image.
     :rtype: ImageResponse
     """
-    current_user = db.query(User).filter(User.id == 3).first()
     image = await repository_images.remove_image(image_id, current_user, db)
     if image is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Image not found")
-    return image
+    return {"message": f"Image ID:{image_id} successfully deleted."}

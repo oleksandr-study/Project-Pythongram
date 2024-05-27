@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from typing import Optional
 
-from src.conf.config import get_db
+from src.database.db import get_db
 from src.repository.transform_images import transform_image_url, update_image
 from src.models.models import Image
 

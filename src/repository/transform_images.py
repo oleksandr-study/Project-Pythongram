@@ -13,6 +13,17 @@ from src.models.models import Image
 
 
 def make_qr_code(edited_image_url: Path, image_id: int, db: Session):
+    """
+    The make_qr_code function takes in the edited image url and the image id.
+    It then creates a QR code using qrcode, saves it as a png file, uploads it to cloudinary
+    and returns its secure url.
+    
+    :param edited_image_url: Path: Pass the path of the edited image to the function
+    :param image_id: int: Name the qr code file
+    :param db: Session: Pass in the database session to the function
+    :return: A dictionary, which is not a valid url
+    :doc-author: Trelent
+    """
     import qrcode
     qr = qrcode.QRCode(
         version=1,

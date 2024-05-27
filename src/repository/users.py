@@ -46,6 +46,9 @@ async def create_user(body: UserModel, db: Session) -> User:
     except Exception as e:
         print(e)
     new_user = User(**body.dict(), avatar=avatar)
+    users = db.query(User).all()
+    if not users:
+        new_user.role = "admin"
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
