@@ -64,7 +64,7 @@ class Comment(Base):
     __tablename__ = "comments"
     id = Column(Integer, primary_key=True)
     comment = Column(String(255), nullable=False)
-    user_id = Column('user_id', ForeignKey('users.id', ondelete='CASCADE'), nullable=True)
+    user_id = Column('user_id', ForeignKey('users.id'), nullable=True)
     user = relationship('User', backref="comments", lazy="joined")
     image_id = Column('image_id', ForeignKey('images.id', ondelete='CASCADE'), nullable=True)
     created_at = Column('created_at', DateTime, default=func.now())
