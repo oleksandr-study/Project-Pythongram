@@ -7,8 +7,9 @@ from src.schemas.tags import TagResponse
 
 class ImageBase(BaseModel):
     image: str = Field(max_length=255)
-    description: str = Field(max_length=100)
-    qr_code: str = Field(max_length=255)
+    description: Optional[str] = Field(max_length=100)
+    #description: str | None = None
+    qr_code: Optional[str] = Field(max_length=255)
     tags: List[str]
     user_id: int
     #user: UserForImage | None
@@ -20,8 +21,8 @@ class ImageUpdateSchema(BaseModel):
     description: str = Field(max_length=100)
     qr_code: str = Field(max_length=255)
     edited_image: str = Field(max_length=255)
-    tags: List[int]
-    comments: Optional[List[int]]
+    tags: Optional[List[str]]
+    #comments: Optional[List[int]]
 
     class Config:
         from_attributes = True
@@ -31,7 +32,7 @@ class ImageResponse(ImageBase):
     #user: UserForImage
     user_id: int
     tags: List[TagResponse]
-    comments: Optional[List[CommentResponse]]
+    #comments: Optional[List[CommentResponse]]
 
     class Config:
         from_attributes = True
