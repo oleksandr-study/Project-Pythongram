@@ -1,12 +1,15 @@
 from typing import List
-
-from fastapi import UploadFile, File, HTTPException
+import cloudinary
+import uuid
+from fastapi import HTTPException
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from starlette import status
 
 from src.models.models import Image, User, Tag, Role
 from src.schemas.images import ImageUpdateSchema
+from cloudinary.utils import cloudinary_url
+
 
 async def get_all_images(skip: int, limit: int, db: Session) -> List[Image]:
     """
@@ -36,6 +39,9 @@ async def get_images_by_user(user_id: int, db: Session) -> List[Image]:
     :rtype: List[Image]
     """
     user = db.query(User).filter(User.id == user_id).first()
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User NOT FOUND")
+
     return db.query(Image).filter(Image.user_id == user.id).all()
 
 
@@ -55,7 +61,7 @@ async def get_images_by_id(image_id: int, user: User, db: Session) -> Image:
     return db.query(Image).filter(and_(Image.id == image_id, Image.user_id == user.id)).all()
 
 
-async def create_image(image_url, description, user: User, all_tags, db: Session) -> Image:
+async def create_image(image, description, user: User, all_tags, db: Session) -> Image:
     """
     Creates a new image for a specific user with provided tags and description.
 
@@ -74,23 +80,24 @@ async def create_image(image_url, description, user: User, all_tags, db: Session
     :raises HTTPException: If more than 5 tags are provided.
     """
     tags = []
-    list_tags = all_tags.split(", ")
-    if len(list_tags) > 5:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You can add up to 5 tags only.")
+    if all_tags:
+        list_tags = all_tags.split(", ")
+        if len(list_tags) > 5:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You can add up to 5 tags only.")
 
-    for tag_name in list_tags:
-        tag = db.query(Tag).filter(Tag.name == tag_name).first()
-        if not tag:
-            tag = Tag(name=tag_name)
-            db.add(tag)
-            db.commit()
-        tags.append(tag)
-
-    print(f"now {image_url}")
+        for tag_name in list_tags:
+            tag = db.query(Tag).filter(Tag.name == tag_name).first()
+            if not tag:
+                tag = Tag(name=tag_name)
+                db.add(tag)
+                db.commit()
+            tags.append(tag)
+    im_uuid = uuid.uuid4()
+    public_id = f"{im_uuid}"
+    url, ot = cloudinary_url(public_id)
+    image_url = cloudinary.uploader.upload(image.file, public_id=public_id, url = url, overwrite=True)
     image = Image(
-        image=image_url,
-        #edited_image="image url",
-        qr_code="none",
+        image=image_url['url'],
         user_id=user.id,
         description=description,
         tags=tags
@@ -121,13 +128,18 @@ async def remove_image(image_id: int, user: User, db: Session) -> Image | None:
     else:
         image = db.query(Image).filter(and_(Image.id == image_id, Image.user_id == user.id)).first()
 
+    public_id = image.image.split("/")[-1].split(".")[0]
     if image:
+        cloudinary.uploader.destroy(public_id)
+        if image.edited_image:
+            public_id = image.image.split("/")[-1].split(".")[0]
+            cloudinary.uploader.destroy(public_id)
         db.delete(image)
         db.commit()
     return image
 
 
-async def update_image(image_id: int, body: ImageUpdateSchema, user: User, all_tags, db: Session) -> Image | None:
+async def update_image(image_id: int, body: ImageUpdateSchema, user: User, db: Session) -> Image | None:
     """
     Updates a single image with the specified ID for a specific user, including updating the tags.
 
@@ -145,23 +157,32 @@ async def update_image(image_id: int, body: ImageUpdateSchema, user: User, all_t
     :rtype: Image | None
     :raises HTTPException: If more than 5 tags are provided.
     """
-    exist_image = db.query(Image).filter(and_(Image.id == image_id, Image.user_id == user.id)).first()
-    if exist_image:
-        tags = []
-        list_tags = all_tags.split(", ")
-        if len(list_tags) > 5:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You can add up to 5 tags only.")
-        for tag_name in list_tags:
-            tag = db.query(Tag).filter(Tag.name == tag_name).first()
-            if not tag:
-                tag = Tag(name=tag_name)
-                db.add(tag)
-                db.commit()
-            tags.append(tag)
 
-        exist_image.qr_code = body.qr_code
-        exist_image.description = body.description
-        exist_image.edited_image = body.edited_image
-        exist_image.tags = tags
-        db.commit()
+    if user.role == Role.admin:
+        exist_image = db.query(Image).filter(Image.id == image_id).first()
+    else:
+        exist_image = db.query(Image).filter(and_(Image.id == image_id, Image.user_id == user.id)).first()
+    if exist_image is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Image not found")
+    try:
+       if exist_image:
+            tags = []
+            list_tags = body.tags
+            if len(list_tags) > 5:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You can add up to 5 tags only.")
+            for tag_name in list_tags:
+                tag = db.query(Tag).filter(Tag.name == tag_name).first()
+                if not tag:
+                    tag = Tag(name=tag_name)
+                    db.add(tag)
+                    db.commit()
+                tags.append(tag)
+
+            exist_image.qr_code = body.qr_code
+            exist_image.description = body.description
+            exist_image.edited_image = body.edited_image
+            exist_image.tags = tags
+            db.commit()
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Can't update image, {e}")
     return exist_image

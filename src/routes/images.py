@@ -1,5 +1,4 @@
 from typing import List
-
 import cloudinary
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, HTTPException, Depends, status, UploadFile, File, Form
@@ -9,9 +8,7 @@ from src.database.db import get_db
 from src.models.models import User
 from src.repository import images as repository_images
 from src.schemas.images import ImageResponse, ImageUpdateSchema
-from src.schemas.comments import CommentResponse,CommentBase
 from src.services.auth import auth_service
-from src.repository import comments as repository_comments
 
 
 router = APIRouter(tags=["images"])
@@ -42,7 +39,7 @@ async def get_all_images(skip: int = 0, limit: int = 100, db: Session = Depends(
     return images
 
 
-@router.get("/users/{user_id}", response_model=List[ImageResponse])
+@router.get("/images/user/{user_id}", response_model=List[ImageResponse])
 async def get_images_by_user(user_id: int, db: Session = Depends(get_db)):
     """
     Retrieves all images for a specific user.
@@ -54,6 +51,7 @@ async def get_images_by_user(user_id: int, db: Session = Depends(get_db)):
     :return: A list of images for the specified user.
     :rtype: List[ImageResponse]
     """
+
     images = await repository_images.get_images_by_user(user_id, db)
     if images is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="NOT FOUND")
@@ -77,15 +75,15 @@ async def get_images_by_id(image_id: int, db: Session = Depends(get_db),
     """
     image = await repository_images.get_images_by_id(image_id, current_user, db)
     if image is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="NOT FOUND")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=" Image NOT FOUND")
     return image
 
 
 @router.post("/images", response_model=ImageResponse, status_code=status.HTTP_201_CREATED)
 async def create_image(
         image: UploadFile = File(),
-        description: str = Form(),
-        tags: str = Form(),
+        description: str | None = Form(None, description="Add description to your image"),
+        tags: str | None = Form(None, description="Add tags to your image"),
         db: Session = Depends(get_db),
         current_user: User = Depends(auth_service.get_current_user)
         ):
@@ -105,16 +103,14 @@ async def create_image(
     :return: The newly created image.
     :rtype: ImageResponse
     """
-
-    public_id = f"PhotoShare/{current_user.id}"
-    res = cloudinary.uploader.upload(image.file, public_id=public_id, overwrite=True)
-    image = await repository_images.create_image(res['url'], description, current_user, tags, db)
+    image = await repository_images.create_image(image, description, current_user, tags, db)
     return image
 
 
 @router.put("/images/{image_id}", response_model=ImageResponse)
 async def update_image(body: ImageUpdateSchema, image_id: int, db: Session = Depends(get_db),
-                        current_user: User = Depends(auth_service.get_current_user)):
+                       # current_user: User = Depends(auth_service.get_current_user)
+                       ):
     """
     Updates an existing image by ID.
 
@@ -129,6 +125,7 @@ async def update_image(body: ImageUpdateSchema, image_id: int, db: Session = Dep
     :return: The updated image.
     :rtype: ImageResponse
     """
+    current_user = db.query(User).filter(User.id == 3).first()
     image = await repository_images.update_image(image_id, body, current_user, db)
     if image is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Image not found")
@@ -137,7 +134,8 @@ async def update_image(body: ImageUpdateSchema, image_id: int, db: Session = Dep
 
 @router.delete("/images/{image_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_image(image_id: int, db: Session = Depends(get_db),
-                       current_user: User = Depends(auth_service.get_current_user)):
+                       #current_user: User = Depends(auth_service.get_current_user)
+                       ):
     """
     Removes an image by ID.
 
@@ -150,6 +148,7 @@ async def remove_image(image_id: int, db: Session = Depends(get_db),
     :return: The removed image.
     :rtype: ImageResponse
     """
+    current_user = db.query(User).filter(User.id == 3).first()
     image = await repository_images.remove_image(image_id, current_user, db)
     if image is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Image not found")
