@@ -64,7 +64,7 @@ async def get_images_by_id(image_id: int, user: User, db: Session) -> Image:
     return db.query(Image).filter(and_(Image.id == image_id, Image.user_id == user.id)).all()
 
 
-async def create_image(image, description, user: User, all_tags:str|None, db: Session) -> Image:
+async def create_image(image, description, user: User, all_tags: str|None, db: Session) -> Image:
     """
     Creates a new image for a specific user with provided tags and description.
 
