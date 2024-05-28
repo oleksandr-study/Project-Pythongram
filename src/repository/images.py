@@ -144,8 +144,8 @@ async def remove_image(image_id: int, user: User, db: Session) -> Image | None:
             public_id = image.qr_code.split("/")[-1].split(".")[0]
             print(f'3 {public_id}')
             cloudinary.uploader.destroy(public_id)
-        #db.delete(image)
-        #db.commit()
+        db.delete(image)
+        db.commit()
     return image
 
 

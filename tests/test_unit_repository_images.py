@@ -42,10 +42,6 @@ class TestComments(unittest.IsolatedAsyncioTestCase):
         result = await get_images_by_user(user_id, self.session)
         self.assertIsNone(result)
 
-
-
-
-
     """async def test_create_image(self):
 
         description = "test"
