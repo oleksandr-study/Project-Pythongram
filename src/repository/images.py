@@ -137,7 +137,7 @@ async def remove_image(image_id: int, user: User, db: Session) -> Image | None:
         print(f'1 {public_id}')
         cloudinary.uploader.destroy(public_id)
         if image.edited_image:
-            public_id = image.image.split("/")[-1].split(".")[0]
+            public_id = image.edited_image.split("/")[-1].split(".")[0]
             print(f'2 {public_id}')
             cloudinary.uploader.destroy(public_id)
         if image.qr_code:
