@@ -48,10 +48,10 @@ def client(session):
 
 @pytest.fixture(scope="module")
 def user():
-    return {"username": "deadpool", "email": "deadpool@example.com", "password": "12345678"}
+    return {"username": "deadpool", "email": "deadpool@example.com", "password": "12345678", "confirmed": True}
 
 
-@pytest.fixture()
-async def get_token():
-    token = auth_service.create_access_token(data={"sub": user["email"]})
-    return token
+# @pytest.fixture()
+# async def get_token():
+#     token = auth_service.create_access_token(data={"sub": user["email"]})
+#     return token
