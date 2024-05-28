@@ -39,6 +39,7 @@ async def get_all_images(skip: int = 0, limit: int = 100, db: Session = Depends(
     return images
 
 
+
 @router.get("/images/user/{user_id}", response_model=List[ImageResponse])
 async def get_images_by_user(user_id: int, db: Session = Depends(get_db)):
     """
