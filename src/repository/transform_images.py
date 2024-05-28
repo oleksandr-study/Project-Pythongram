@@ -1,5 +1,6 @@
 import cloudinary
 import qrcode
+import uuid
 
 from typing import Dict, Optional
 from fastapi import HTTPException, status
@@ -9,10 +10,10 @@ from cloudinary.utils import cloudinary_url
 from src.conf.config import cloudinary_start
 from cloudinary.uploader import upload
 from sqlalchemy.orm import Session
-from src.models.models import Image
+from src.models.models import Image, User
 
 
-def make_qr_code(edited_image_url: Path, image_id: int, db: Session):
+def make_qr_code(edited_image_url: str, image_id: int, username: str):
     """
     The make_qr_code function takes in the edited image url and the image id.
     It then creates a QR code using qrcode, saves it as a png file, uploads it to cloudinary
@@ -32,7 +33,7 @@ def make_qr_code(edited_image_url: Path, image_id: int, db: Session):
         border=4,
     )
 
-    qr.add_data('Some data')
+    qr.add_data(edited_image_url)
     qr.make(fit=True)
 
     img = qr.make_image(fill_color="black", back_color="white")
@@ -43,7 +44,7 @@ def make_qr_code(edited_image_url: Path, image_id: int, db: Session):
     cloudinary_start()
     upload_qr_code = cloudinary.uploader.upload(
         qr_code_file,
-        public_id=f"Qr_Code/qr_code_{image_id}",
+        public_id=f"Qr_Code/{username}/qr_code_{image_id}",
         overwrite=True,
         invalidate=True,
     )
@@ -52,17 +53,18 @@ def make_qr_code(edited_image_url: Path, image_id: int, db: Session):
 
 
 async def transform_image_url(
-    public_id: str,
-    width: Optional[int] = None,
-    height: Optional[int] = None,
-    crop: Optional[str] = None,
-    gravity: Optional[str] = None,
-    quality: Optional[str] = None,
-    fetch_format: Optional[str] = None,
-    effect: Optional[str] = None,
-    angle: Optional[int] = None,
-    db: Session = None
-) -> str:
+        image_id: str,
+        db: Session,
+        user: User,
+        width: Optional[int] = None,
+        height: Optional[int] = None,
+        crop: Optional[str] = None,
+        gravity: Optional[str] = None,
+        quality: Optional[str] = None,
+        fetch_format: Optional[str] = None,
+        effect: Optional[str] = None,
+        angle: Optional[int] = None
+    ) -> str:
     """
     Transforms the image with the specified parameters and updates the edited image URL in the database.
 
@@ -96,23 +98,31 @@ async def transform_image_url(
     }
 
     transformations = {k: v for k, v in transformations.items() if v is not None}
+    tr = []
+    tr.append(transformations)
 
-    url, options = cloudinary_url(public_id, **transformations)
-    
-    upload_result = upload(url)
-
-    if 'url' not in upload_result:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to upload image to Cloudinary")
-    
-    image = db.query(Image).filter(Image.public_id == public_id).first()
+    image = db.query(Image).filter(Image.id == image_id).first()
     if not image:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Image not found")
+
+    im_uuid = uuid.uuid4()
+    public_id = f"Images/{user.username}/{im_uuid}"
+
+    image_url = cloudinary.uploader.upload(image.image, public_id=public_id, transformation=tr)
+    print(image_url['secure_url'])
+
+    if 'url' not in image_url:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to upload image to Cloudinary")
     
-    image.edited_image = upload_result['url']
+    image.edited_image = image_url['secure_url']
+
+    image.qr_code = make_qr_code(image_url['secure_url'], im_uuid, user.username)
+    print(image.qr_code)
+
     db.commit()
     db.refresh(image)
     
-    return image.edited_image
+    return image.qr_code
 
 async def update_image(image_id: int, edited_image_url: str, db: Session, user_id: int) -> Image:
     """

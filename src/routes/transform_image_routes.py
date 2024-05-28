@@ -4,13 +4,14 @@ from typing import Optional
 
 from src.database.db import get_db
 from src.repository.transform_images import transform_image_url, update_image
-from src.models.models import Image
+from src.models.models import Image, User
+from src.services.auth import auth_service
 
 router = APIRouter()
 
 @router.post("/transform")
 async def transform_image(
-    public_id: str,
+    image_id: str,
     width: Optional[int] = None,
     height: Optional[int] = None,
     crop: Optional[str] = None,
@@ -19,7 +20,8 @@ async def transform_image(
     fetch_format: Optional[str] = None,
     effect: Optional[str] = None,
     angle: Optional[int] = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth_service.get_current_user)
 ):
     """
     Transform an image using Cloudinary and update the edited image URL in the database.
@@ -56,7 +58,7 @@ async def transform_image(
     # Remove None values from the transformations dictionary
     transformations = {k: v for k, v in transformations.items() if v is not None}
 
-    transformed_url = await transform_image_url(public_id, **transformations, db=db)
+    transformed_url = await transform_image_url(image_id, db, current_user, **transformations)
 
     return {"transformed_url": transformed_url}
 
