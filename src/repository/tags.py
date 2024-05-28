@@ -20,20 +20,20 @@ async def get_tags(skip: int, limit: int, db: Session, user: User
     return tags
 
 
-async def get_tag(tag_id: int, db: Session,user: User
-                  ) -> Tag| None:
-    """
-    Retrieves a single tag by its ID.
+# async def get_tag(tag_id: int, db: Session,user: User
+#                   ) -> Tag| None:
+#     """
+#     Retrieves a single tag by its ID.
 
-    :param tag_id: The ID of the tag to retrieve.
-    :type tag_id: int
-    :param db: The database session.
-    :type db: Session
-    :return: The tag with the specified ID, or None if it does not exist.
-    :rtype: Tag | None
-    """
-    tag = db.query(Tag).filter(Tag.id == tag_id).first()
-    return tag
+#     :param tag_id: The ID of the tag to retrieve.
+#     :type tag_id: int
+#     :param db: The database session.
+#     :type db: Session
+#     :return: The tag with the specified ID, or None if it does not exist.
+#     :rtype: Tag | None
+#     """
+#     tag = db.query(Tag).filter(Tag.id == tag_id).first()
+#     return tag
 
 
 async def remove_tag(tag_id: int, db: Session,user: User
