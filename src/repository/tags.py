@@ -16,8 +16,7 @@ async def get_tags(skip: int, limit: int, db: Session, user: User
     :return: A list of tags.
     :rtype: List[Tag]| None
     """
-    if user.role ==Role.admin or user.role ==Role.moderator:
-       tags =db.query(Tag).offset(skip).limit(limit).all()
+    tags =db.query(Tag).offset(skip).limit(limit).all()
     return tags
 
 
@@ -33,8 +32,7 @@ async def get_tag(tag_id: int, db: Session,user: User
     :return: The tag with the specified ID, or None if it does not exist.
     :rtype: Tag | None
     """
-    if user.role ==Role.admin or user.role ==Role.moderator:
-       tag = db.query(Tag).filter(Tag.id == tag_id).first()
+    tag = db.query(Tag).filter(Tag.id == tag_id).first()
     return tag
 
 
@@ -52,8 +50,7 @@ async def remove_tag(tag_id: int, db: Session,user: User
     :return: The deleted tag, or None if it does not exist.
     :rtype: Tag | None
     """
-    if user.role ==Role.admin or user.role ==Role.moderator:
-        tag = db.query(Tag).filter(Tag.id == tag_id).first()
+    tag = db.query(Tag).filter(Tag.id == tag_id).first()
 
     if tag:
         db.delete(tag)
