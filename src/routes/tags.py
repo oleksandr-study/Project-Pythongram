@@ -30,22 +30,22 @@ async def read_tags(skip: int = 0, limit: int = 100, db: Session = Depends(get_d
     return tags
 
 
-# @router.get("/{tag_id}", response_model=TagResponse)
-# async def read_tag(tag_id: int, db: Session = Depends(get_db), current_user: User = Depends(auth_service.get_current_user)):
-#     """
-#     Retrieves a tag by its ID.
+@router.get("/{tag_id}", response_model=TagResponse)
+async def read_tag(tag_id: int, db: Session = Depends(get_db), current_user: User = Depends(auth_service.get_current_user)):
+    """
+    Retrieves a tag by its ID.
 
-#     :param tag_id: The ID of the tag to retrieve.
-#     :type tag_id: int
-#     :param db: The database session.
-#     :type db: Session
-#     :return: The tag with the specified ID, or raises a 404 error if not found.
-#     :rtype: TagResponse
-#     """
-#     tag = await repository_tags.get_tag(tag_id, current_user, db)
-#     if tag is None:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tag not found")
-#     return tag
+    :param tag_id: The ID of the tag to retrieve.
+    :type tag_id: int
+    :param db: The database session.
+    :type db: Session
+    :return: The tag with the specified ID, or raises a 404 error if not found.
+    :rtype: TagResponse
+    """
+    tag = await repository_tags.get_tag(tag_id, current_user, db)
+    if tag is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tag not found")
+    return tag
 
 
 @router.delete("/{tag_id}", response_model=TagResponse)
