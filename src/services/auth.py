@@ -196,9 +196,22 @@ class Auth:
                                 detail="Invalid token for email verification")
 
 
-
-
     async def change_user_role(self, admin_email: str, user_email: str, new_role: str, db: Session = Depends(get_db)):
+        """
+        The change_user_role function is used to change the role of a user.
+            Only an admin can change the role of a user.
+            The function takes in three parameters: admin_email, user_email and new_role.
+            It first checks if the person making this request is an admin or not by checking their email against our database. If they are not, then we raise a 403 Forbidden error with details explaining that only admins can make this request.
+            
+            Next we check if there exists any users with that email address in our database using get_user_by_email(). If there isn't one,
+        
+        :param self: Refer to the current instance of a class
+        :param admin_email: str: Identify the admin user
+        :param user_email: str: Get the user's email from the request body
+        :param new_role: str: Set the new role for the user
+        :param db: Session: Get the database session
+        :return: A dict with a message
+        """
         admin = await repository_users.get_user_by_email(admin_email, db)
         if admin is None or admin.role != Role.admin:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admin can change user roles")

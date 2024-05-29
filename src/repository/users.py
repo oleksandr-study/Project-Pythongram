@@ -115,6 +115,18 @@ async def update_avatar(email, url: str, db: Session) -> User:
 
 
 async def update_user_role(email: str, new_role: str, db: Session) -> User:
+    """
+    The update_user_role function updates the role of a user in the database.
+        Args:
+            email (str): The email address of the user to update.
+            new_role (str): The new role for this user.
+            db (Session, optional): SQLAlchemy Session instance; defaults to None.
+    
+    :param email: str: Identify the user
+    :param new_role: str: Update the role of a user
+    :param db: Session: Pass the database session to the function
+    :return: The updated user object
+    """
     user = await get_user_by_email(email, db)
     user.role = new_role
     db.commit()

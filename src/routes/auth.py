@@ -225,6 +225,19 @@ async def update_avatar_user(file: UploadFile = File(), current_user: User = Dep
 
 @router.post("/change_role", response_model=dict)
 async def change_user_role(admin_email: str, user_email: str, new_role: Role, db: Session = Depends(get_db)):
+    """
+    The change_user_role function changes the role of a user.
+        Args:
+            admin_email (str): The email address of the administrator who is changing the user's role.
+            user_email (str): The email address of the user whose role is being changed.
+            new_role (Role): The new Role for this User, either &quot;admin&quot; or &quot;user&quot;.
+    
+    :param admin_email: str: Identify the admin who is trying to change a user's role
+    :param user_email: str: Identify the user whose role is to be changed
+    :param new_role: Role: Specify the new role of the user
+    :param db: Session: Access the database
+    :return: A dictionary
+    """
     try:
         result = await auth_service.change_user_role(admin_email, user_email, new_role, db)
         return {"message": result}
