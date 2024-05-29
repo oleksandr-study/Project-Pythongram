@@ -39,7 +39,12 @@ class Role(enum.Enum):
     user: str = "user"
 
 
-class User(Base):
+class Datestamp:
+    created_at = Column('created_at', DateTime, default=func.now())
+    updated_at = Column('updated_at', DateTime, default=func.now(), onupdate=func.now())
+
+
+class User(Base, Datestamp):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
     username = Column(String(50))
@@ -48,8 +53,6 @@ class User(Base):
     avatar = Column(String(255), nullable=True)
     role = Column('role', Enum(Role), default=Role.user, nullable=True)
     refresh_token = Column(String(255), nullable=True)
-    created_at = Column('created_at', DateTime, default=func.now())
-    updated_at = Column('updated_at', DateTime, default=func.now(), onupdate=func.now())
     is_active = Column(Boolean, default=False)
     confirmed = Column(Boolean, default=False)
 
@@ -60,12 +63,10 @@ class Tag(Base):
     name = Column(String(25), nullable=False, unique=True)
 
 
-class Comment(Base):
+class Comment(Base, Datestamp):
     __tablename__ = "comments"
     id = Column(Integer, primary_key=True)
     comment = Column(String(255), nullable=False)
     user_id = Column('user_id', ForeignKey('users.id', ondelete='CASCADE'), nullable=True)
     user = relationship('User', backref="comments", lazy="joined")
     image_id = Column('image_id', ForeignKey('images.id', ondelete='CASCADE'), nullable=True)
-    created_at = Column('created_at', DateTime, default=func.now())
-    updated_at = Column('updated_at', DateTime, default=func.now(), onupdate=func.now())
