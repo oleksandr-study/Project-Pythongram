@@ -55,17 +55,17 @@ app.add_middleware(
 # app.include_router(images.router)
 
 
-# @app.on_event("startup")
-# async def startup():
-#     """
-#     The startup function is called when the application starts up.
-#     It's a good place to initialize things that are needed by your app, like database connections or caches.
+@app.on_event("startup")
+async def startup():
+    """
+    The startup function is called when the application starts up.
+    It's a good place to initialize things that are needed by your app, like database connections or caches.
     
-#     :return: A future object, which is a coroutine
-#     :doc-author: Trelent
-#     """
-#     r = await redis.Redis(host=settings.redis_host, port=settings.redis_port, db=0, password=settings.redis_password)
-#     await FastAPILimiter.init(r)
+    :return: A future object, which is a coroutine
+    :doc-author: Trelent
+    """
+    r = await redis.Redis(host=settings.redis_host, port=settings.redis_port, db=0, password=settings.redis_password)
+    await FastAPILimiter.init(r)
 
 
 @app.get("/healthchecker")

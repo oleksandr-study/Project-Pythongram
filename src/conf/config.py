@@ -40,6 +40,7 @@ class Settings(BaseSettings):
     mail_server: str="test"
     redis_host: str ="test"
     redis_port: int=1
+    redis_password: str ="test"
     postgres_db: str ="test"
     postgres_user: str ="test"
     postgres_password: str ="test"
